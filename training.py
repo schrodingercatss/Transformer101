@@ -45,15 +45,15 @@ def train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, de
             loss = criterion(outputs.view(-1, outputs.size(-1)), targets.view(-1))
             loss.backward()
 
+            # grad norm clip
+            clip_grad_norm_(model.parameters(), max_norm=1.0)
+
             # grad norm
             total_norm = 0.0
             for param in model.parameters():
                 if param.grad is not None:
                     total_norm += param.grad.detach().norm(2).item() ** 2
             total_norm = total_norm ** 0.5
-
-            # grad norm clip
-            clip_grad_norm_(model.parameters(), max_norm=1.0)
 
             optimizer.step()
             scheduler.step()
