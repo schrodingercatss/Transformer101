@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.utils import clip_grad_norm_
 import math
 from transformers import AutoTokenizer
 from transformers import get_cosine_schedule_with_warmup
@@ -51,6 +52,8 @@ def train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, de
                     total_norm += param.grad.detach().norm(2).item() ** 2
             total_norm = total_norm ** 0.5
 
+            # grad norm clip
+            clip_grad_norm_(model.parameters(), max_norm=1.0)
 
             optimizer.step()
             scheduler.step()
