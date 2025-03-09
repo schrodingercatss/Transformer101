@@ -45,15 +45,22 @@ def train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, de
             loss = criterion(outputs.view(-1, outputs.size(-1)), targets.view(-1))
             loss.backward()
 
-            # grad norm clip
-            clip_grad_norm_(model.parameters(), max_norm=1.0)
-
             # grad norm
             total_norm = 0.0
             for param in model.parameters():
                 if param.grad is not None:
                     total_norm += param.grad.detach().norm(2).item() ** 2
             total_norm = total_norm ** 0.5
+
+            # skip the batch if the gradient norm is too large
+            if math.isnan(total_norm) or (global_step > 5000 and total_norm > 1.0):
+                print(f"Step {global_step} | Skipping batch due to gradient norm {total_norm:.4f}")
+                continue
+
+            # grad norm clip
+            clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+
 
             optimizer.step()
             scheduler.step()
@@ -101,7 +108,7 @@ def train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, de
                 print(f"Step {global_step} | Val Loss: {avg_val_loss:.4f} | Val PPL: {val_ppl:.4f}")
 
                 model.train()
-            if global_step % 5000 == 0:
+            if global_step % 1000 == 0:
                 torch.save({
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
