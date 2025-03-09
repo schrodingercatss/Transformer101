@@ -1,5 +1,6 @@
 *.log
 *.txt
 *.pth
+*.ipynb
 wandb/
 
