@@ -107,7 +107,7 @@ def train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, de
                     'optimizer_state_dict': optimizer.state_dict(),
                     'scheduler_state_dict': scheduler.state_dict(),
                     'global_step': global_step,
-                }, f'transformer_step{global_step}.pth')
+                }, f'transformer_step_{global_step}.pth')
                 
     torch.save(model.state_dict(), f'transformer_final.pth')
 
