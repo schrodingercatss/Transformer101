@@ -3,4 +3,4 @@
 *.pth
 *.ipynb
 wandb/
-
+__pycache__/
