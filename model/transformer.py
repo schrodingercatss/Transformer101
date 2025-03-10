@@ -3,7 +3,7 @@ import math
 import torch.nn as nn
 import torch.nn.functional as F
 from attention.mha import MultiHeadAttention
-from pos_encoding.sinusoidal import SinusoidalPE
+from pos_encoding.sinusoidalPE import SinusoidalPE
 
 
 class PositionwiseFeedForward(nn.Module):
