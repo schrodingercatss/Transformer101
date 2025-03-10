@@ -33,9 +33,9 @@ class LlamaAttention(nn.Module):
         K = self._transpose_score(self.k_proj(k))
         V = self._transpose_score(self.v_proj(v))
 
-        Q = self.rotary_emb(Q.view(-1, seq_len, self.d_k)).view(B, self.num_heads, seq_len, self.d_k)
-        K = self.rotary_emb(K.view(-1, seq_len, self.d_k)).view(B, self.num_heads, seq_len, self.d_k)
-        V = self.rotary_emb(V.view(-1, seq_len, self.d_k)).view(B, self.num_heads, seq_len, self.d_k)
+        Q = self.rotary_emb(Q.reshape(-1, seq_len, self.d_k)).reshape(B, self.num_heads, seq_len, self.d_k)
+        K = self.rotary_emb(K.reshape(-1, seq_len, self.d_k)).reshape(B, self.num_heads, seq_len, self.d_k)
+        V = self.rotary_emb(V.reshape(-1, seq_len, self.d_k)).reshape(B, self.num_heads, seq_len, self.d_k)
 
         score = Q @ K.transpose(-2, -1) / math.sqrt(self.d_k)
         if mask is not None:
