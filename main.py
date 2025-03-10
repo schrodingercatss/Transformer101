@@ -5,7 +5,7 @@ import math
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 from text_dataset import TinyStoriesDataset
-from transformer import Transformer
+from model.transformer import Transformer
 from training import train_transformer, generate_text
 from transformers import AutoTokenizer
 import wandb
