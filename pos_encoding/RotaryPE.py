@@ -9,7 +9,7 @@ class RotaryPE(nn.Module):
         assert d_model % 2 == 0, "d_model must be even"
 
         inv_freq = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        positions = torch.arrange(0, max_seq_len, dtype=torch.float)
+        positions = torch.arange(0, max_seq_len, dtype=torch.float)
 
         freq = torch.einsum('i,j->ij', positions, inv_freq)
         sin = torch.sin(freq)
