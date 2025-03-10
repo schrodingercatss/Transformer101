@@ -1,9 +1,6 @@
-import torch
-import math
 import torch.nn as nn
 import torch.nn.functional as F
 from attention.llama_attn import LlamaAttention
-from pos_encoding.RotaryPE import RotaryPE
 
 
 class LlamaMLP(nn.Module):
@@ -16,6 +13,7 @@ class LlamaMLP(nn.Module):
     def forward(self, x):
         return self.down_proj(self.gate_proj(x) * F.silu(self.up_proj(x)))
         
+
 class LlamaDecoderBlock(nn.Module):
     def __init__(self, d_model, num_heads, max_seq_len, dropout=0.0):
         super().__init__()
@@ -52,7 +50,7 @@ class LlamaModel(nn.Module):
     def __init__(self, vocab_size, d_model, num_heads, num_layers, max_seq_len, dropout=0.0):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, d_model)
-        self.decoder = LlamaDecoder(d_model, num_heads, d_model, num_layers, max_seq_len, dropout)
+        self.decoder = LlamaDecoder(d_model, num_heads, num_layers, max_seq_len, dropout)
 
 
         self.norm = nn.RMSNorm(d_model)
@@ -66,20 +64,16 @@ class LlamaModel(nn.Module):
         x = self.norm(x)
         output = self.fc(x)
         return output
+
+
+# class RMSNorm(nn.Module):
+#     def __init__(self, normalized_shape, eps=1e-8):
+#         super().__init__()
+#         self.eps = eps
+#         self.alpha = nn.Parameter(torch.ones(normalized_shape))
         
-
-
-
-
-
-class RMSNorm(nn.Module):
-    def __init__(self, normalized_shape, eps=1e-8):
-        super().__init__()
-        self.eps = eps
-        self.alpha = nn.Parameter(torch.ones(normalized_shape))
-        
-    def forward(self, x):
-        rms = x.pow(2).mean(dim=-1, keepdim=True).sqrt()
-        x_normalized = x / (rms + self.eps)
-        return self.alpha * x_normalized
+#     def forward(self, x):
+#         rms = x.pow(2).mean(dim=-1, keepdim=True).sqrt()
+#         x_normalized = x / (rms + self.eps)
+#         return self.alpha * x_normalized
     
