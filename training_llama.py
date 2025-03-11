@@ -53,7 +53,7 @@ def train_llama(model, train_dataloader, val_dataloader, max_steps, lr, device, 
             total_norm = total_norm ** 0.5
 
             # skip the batch if the gradient norm is too large
-            if math.isnan(total_norm) or (global_step > 3000 and total_norm > 1.0):
+            if math.isnan(total_norm) or (global_step > 3000 and total_norm > 3.0):
                 print(f"Step {global_step} | Skipping batch due to gradient norm {total_norm:.4f}")
                 continue
 

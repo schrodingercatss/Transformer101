@@ -16,11 +16,11 @@ class GroupedMultiQueryAttention(nn.Module):
         self.d_k = d_model // num_heads
         self.group_size = num_heads // num_groups
 
-        self.q_proj = nn.Linear(d_model, d_model)
+        self.q_proj = nn.Linear(d_model, d_model, bias=False)
 
         # The key and value projections are now split into num_groups groups
-        self.k_proj = nn.Linear(d_model, num_groups * self.d_k)
-        self.v_proj = nn.Linear(d_model, num_groups * self.d_k)
+        self.k_proj = nn.Linear(d_model, num_groups * self.d_k, bias=False)
+        self.v_proj = nn.Linear(d_model, num_groups * self.d_k, bias=False)
         
         self.o_proj = nn.Linear(d_model, d_model)
 

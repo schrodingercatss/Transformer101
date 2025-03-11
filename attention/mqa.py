@@ -11,11 +11,11 @@ class MultiQueryAttention(nn.Module):
         self.num_heads = num_heads
         self.d_k = d_model // num_heads
 
-        self.q_proj = nn.Linear(d_model, d_model)
+        self.q_proj = nn.Linear(d_model, d_model, bias=False)
 
-        self.k_proj = nn.Linear(d_model, self.d_k)
-        self.v_proj = nn.Linear(d_model, self.d_k)
-        self.o_proj = nn.Linear(d_model, d_model)
+        self.k_proj = nn.Linear(d_model, self.d_k, bias=False)
+        self.v_proj = nn.Linear(d_model, self.d_k, bias=False)
+        self.o_proj = nn.Linear(d_model, d_model, bias=False)
 
     def _transpose_score(self, x): # x shape: [B, seq_len, d_model]
         new_shape = x.size()[:-1] + (self.num_heads, self.d_k)

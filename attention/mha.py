@@ -12,10 +12,10 @@ class MultiHeadAttention(nn.Module):
         self.d_k = d_model // num_heads
 
         # Linear projections for Q, K, V, and output
-        self.q_proj = nn.Linear(d_model, d_model)
-        self.k_proj = nn.Linear(d_model, d_model)
-        self.v_proj = nn.Linear(d_model, d_model)
-        self.o_proj = nn.Linear(d_model, d_model)
+        self.q_proj = nn.Linear(d_model, d_model, bias=False)
+        self.k_proj = nn.Linear(d_model, d_model, bias=False)
+        self.v_proj = nn.Linear(d_model, d_model, bias=False)
+        self.o_proj = nn.Linear(d_model, d_model, bias=False)
 
     def _transpose_score(self, x): # x shape: [B, seq_len, d_model]
         new_shape = x.size()[:-1] + (self.num_heads, self.d_k)
