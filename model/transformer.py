@@ -7,13 +7,14 @@ from pos_encoding.sinusoidalPE import SinusoidalPE
 
 
 class PositionwiseFeedForward(nn.Module):
-    def __init__(self, d_model, d_ff):
+    def __init__(self, d_model, d_ff, dropout=0.0):
         super().__init__()
         self.fc1 = nn.Linear(d_model, d_ff)
         self.fc2 = nn.Linear(d_ff, d_model)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        return self.fc2(F.relu(self.fc1(x)))
+        return self.fc2(F.relu(self.dropout(self.fc1(x))))
     
 
 class EncoderBlock(nn.Module):
@@ -21,7 +22,7 @@ class EncoderBlock(nn.Module):
         super().__init__()
         
         self.self_attn = MultiHeadAttention(d_model, num_heads)
-        self.feed_forward = PositionwiseFeedForward(d_model, d_ff)
+        self.feed_forward = PositionwiseFeedForward(d_model, d_ff, dropout=dropout)
 
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
@@ -47,7 +48,7 @@ class CrossDecoderBlock(nn.Module):
 
         self.self_attn = MultiHeadAttention(d_model, num_heads)
         self.cross_attn = MultiHeadAttention(d_model, num_heads)
-        self.feed_forward = PositionwiseFeedForward(d_model, d_ff)
+        self.feed_forward = PositionwiseFeedForward(d_model, d_ff, dropout=dropout)
 
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
@@ -78,7 +79,7 @@ class DecoderBlock(nn.Module):
         super().__init__()
 
         self.self_attn = MultiHeadAttention(d_model, num_heads)
-        self.feed_forward = PositionwiseFeedForward(d_model, d_ff)
+        self.feed_forward = PositionwiseFeedForward(d_model, d_ff, dropout=dropout)
 
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
