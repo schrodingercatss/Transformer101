@@ -26,7 +26,7 @@ lr = 1e-3
 
 
 # 初始化 wandb
-wandb.init(project='tiny_transformer', config={
+wandb.init(project='my_Llama', config={
     'seq_length': seq_length,
     'batch_size': batch_size,
     'd_model': d_model,
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         dropout=dropout
     )
 
-    train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, device)
+    train_transformer(model, train_dataloader, val_dataloader, max_steps, lr, device, use_amp=True)
     print("Model saved to transformer.pth")
 
     # Generate text
