@@ -7,9 +7,9 @@ import torch.nn.functional as F
 class Expert(nn.Module):
     def __init__(self, d_model, hidden_dim):
         super().__init__()
-        self.gate_proj = nn.Linear(d_model, hidden_dim, bias=False)
-        self.up_proj = nn.Linear(d_model, hidden_dim, bias=False)
-        self.down_proj = nn.Linear(hidden_dim, d_model, bias=False)
+        self.gate_proj = nn.Linear(d_model, hidden_dim)
+        self.up_proj = nn.Linear(d_model, hidden_dim)
+        self.down_proj = nn.Linear(hidden_dim, d_model)
 
     def forward(self, x):
         return self.down_proj(self.gate_proj(x) * F.silu(self.up_proj(x)))
@@ -27,7 +27,7 @@ class MoEGate(nn.Module):
         self.gate = nn.Linear(d_model, num_experts)
 
     def forward(self, x):
-        batch_size, input_dim, d_model = x.shape
+        batch_size, seq_len, d_model = x.shape
         x = x.view(-1, d_model)
         logits = self.gate(x)
         scores = F.softmax(logits, dim=-1)
@@ -42,23 +42,23 @@ class MoEGate(nn.Module):
         one_hot = F.one_hot(topk_indices, num_classes=self.num_experts).float() # shape: [N, top_k, num_experts]
         load = one_hot.view(-1, self.num_experts).sum(dim=0) # shape: [num_experts, ]
 
-        # 计算每个专家的容量
+        # 计算每个专家的容量，每个token都会被分配到topk个专家
         n_tokens = x.size(0)
-        capacity = self.capacity_factor * n_tokens / self.num_experts
+        capacity = self.capacity_factor * (n_tokens * self.top_k) / self.num_experts
 
         # 如果某个专家的容量超过了上限，则计算惩罚
-        capacity_penalty = F.relu(load - capacity).sum() / self.num_experts
+        capacity_penalty = (F.relu(load - capacity).sum() / self.num_experts) / (batch_size * seq_len)
         aux_loss = self.alpha * capacity_penalty
 
         # 恢复topk_idx 和 topk_weights 的形状
-        topk_indices = topk_indices.view(batch_size, input_dim, self.top_k)
-        topk_weights = topk_weights.view(batch_size, input_dim, self.top_k)
+        topk_indices = topk_indices.view(batch_size, seq_len, self.top_k)
+        topk_weights = topk_weights.view(batch_size, seq_len, self.top_k)
         return topk_indices, topk_weights, aux_loss
 
 
 
-class DeepseekMoE(nn.Module):
-    def __init__(self, d_model, num_experts, top_k, capacity_factor, hidden_dim, alpha, open_shared_expert=False):
+class DeepSeekMoE(nn.Module):
+    def __init__(self, d_model, hidden_dim, num_experts, top_k, capacity_factor, alpha, open_shared_expert=False):
         super().__init__()
         self.input_dim = d_model
         self.num_experts = num_experts
